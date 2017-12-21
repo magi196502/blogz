@@ -42,6 +42,7 @@
         </style>
     </head>
     <body>
+
         <div>
             <table>
                 <tr>
@@ -54,12 +55,23 @@
                 </tr>
             </table>
         </div> 
-        {% block content  %}
+        <div>
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                    <ul>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endwith %}
+        </div>
+
+    {% block content  %}
 
         <!--
         <h1> Successfully running</h1>
         -->
 
-        {% endblock %}
+    {% endblock %}
+
     </body>
 </html>

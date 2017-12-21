@@ -14,7 +14,6 @@
                 {% else %}
                     {% for post in posts %}
                     <div>
-                        <input type="hidden" value="{{ post.id }}">
                         <p> <a href="/blog?id={{ post.id}}"> {{ post.title }} </a>  </p>
                         <p> {{ post.blog_body }} </p>
                         <p> Date posted {{ post.post_date }}</p>

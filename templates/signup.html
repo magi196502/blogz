@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/signup" method="post">
+    <table>
+        <th>  </th>
+        <tbody>
+            <tr>
+                <td>
+                    <label for="username">Username</label>                            
+                </td>
+                <td>
+                    <input type="text" name="username" value="{{username}}"/>
+                    {% if error and error_type == "USER" %}
+                    <span class='error'>
+                        {{ error }}
+                    </spanl>
+                    {% else %}
+                
+                        {% if error and error_type == "ALL" %}
+                        
+                        <span class='error'> Username cannot be empty </span>
+            
+                        {% endif %}
+                    {% endif %}
+                
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="password"> Password </label>                        
+                </td>                
+                <td>
+                    <input type="password" name="password" value="{{password}}"/>
+                    
+                    {% if (error and  error_type == "PASSWORD") %}
+                    <span class='error'>
+                        {{ error }}
+                    </span>
+                    {% else %}
+                
+                        {% if error and error_type == "ALL" %}
+                    
+                            <span class='error'> Password cannot be empty </span>
+                
+                        {% endif %}
+                    {% endif %}                        
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="verify_password">Verify password</label>
+                </td>
+                <td>
+                    <input type="password" name="verify_password" value="{{verify_password}}"/>
+                
+                    {% if error and error_type == "ALL" %}                
+                    <label class='error'> Confirmation password cannot be empty </label>
+                    {% endif %}
+                </td>            
+            </tr>
+                <td>
+                    <label> Email (Optional) </label>
+                </td>
+                <td>
+                    <input type="text" name="email" value="{{email}}"/>
+                    {% if error and error_type == "EMAIL" %}
+                    <label class='error'>
+                        {{ error }}
+                    </label>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="submit" value="Submit" />                        
+                </td>
+            </tr>
+        </tbody>
+    </table>    
+</form>
+{% endblock %}
