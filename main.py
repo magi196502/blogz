@@ -74,9 +74,6 @@ def login():
                 # Todo - 'remember' that the user has logged in
                 session['username'] = username
                 flash('Logged in')
-                #print(session)
-    #           return redirect('/')
-#               return redirect('/newpost')
                 return render_template('newpost.html')
             else:
                 # Todo = explain why the login failed
