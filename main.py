@@ -47,13 +47,15 @@ class User(db.Model):
 def blog_home():
 #   allowed_routes = ['blog','newpost']
 #   allowed_routes = ['login','index','signup','blog','newpost','logout']  (Working)
-    allowed_routes = ['login','index','signup','blog','newpost','logout']
+    allowed_routes = ['/','index','login','signup','blog','newpost','logout']
     # Check to see if the user is logged in. If not redirect to the login page
 
     current_user = session.get('username') 
     print("Entering the @app.before_request route")
     if request.endpoint not in allowed_routes:
-        return redirect('/blog')
+#       return redirect('/blog')
+        return redirect('/index')
+
     """
     if request.endpoint == 'newpost':
         if not current_user:
@@ -145,7 +147,7 @@ def blog():
         posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
 
         # Render the template and pass the parameters
-        return render_template('blog.html',title="Build a Blog", blog_post=blog_post, posts=posts)
+        return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
     else:
         id = request.args.get('id')
         blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
@@ -319,46 +321,37 @@ def logout():
     logged_in_user = session.get('username')
     if logged_in_user:
         del session['username']
-    print("After log out", session)
     return redirect('/blog')
-    """
-    if request.method == 'POST':
-        print("Entering logout of user session")
-        print("Before log out", session)
-        if logged_in_user:
-            del session['username']
-        print("After log out", session)
-        return redirect('/blog')
-    else:
-        if logged_in_user:
-            del session['username']
-        print("After log out", session)
-        return redirect('/blog')
-    """
-
-#   return render_template('blog.html',title="Blogz")
 
 # Set the home page route. In this application it's the blog page
-@app.route('/',methods=['POST','GET'])
+@app.route('/index',methods=['GET','POST'])
 def index():
+    bloggers = User.query.all()    # Query all bloggers
+    return render_template('index.html',title="Blogz",bloggers=bloggers)
+    """
     # pocess the post method
     if request.method == 'POST':
+        return render_template('index.html',title="Blogz",bloggers=bloggers)
 
 #       return render_template('login.html',title="Blogz")
-        return redirect('/blog')
+#       return redirect('/blog')
+#       return redirect('/index')
     else:
         # Process get requests
+ #      bloggers = User.query.all()    # Query all bloggers
+        return render_template('index.html',title="Blogz",bloggers=bloggers)
+#       return redirect('/index')
 #       posts = Blog.query.all()                        # Query all blogs
 #       posts = Blog.query.order_by(Blog.id.desc()).limit(3).all()    # Query all posts when form is rendered
 #       posts = Blog.query.order_by(Blog.id.desc()).all()    # Query all posts when form is rendered
-        posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
-        id = request.args.get("id")                     # Get the blog id
-        blog_post = Blog.query.filter_by(id=id).all()   # Get an individual blog
-
-        return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+#        posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
+#        id = request.args.get("id")                     # Get the blog id
+ #       blog_post = Blog.query.filter_by(id=id).all()   # Get an individual blog
+#        return render_template('index.html')
+#        return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
 #        return render_template('Blog.html',title="Blogz")
 #        return redirect('/blog')
-
+    """
 
 # If app is called from main run
 if __name__ == '__main__':

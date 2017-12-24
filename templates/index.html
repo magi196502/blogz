@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Blog Users!</h1>
+
+    <form action="/index">
+
+        {% if bloggers|length == 0 %}
+
+            <p> Sign up to enter a bog </p>
+
+        {% else  %}
+            <ul>
+                {% for blogger in bloggers %}
+                    <li><a href="/blog?user={{blogger.username}}"> {{ blogger.username }} </a>  </li>
+                {% endfor %}
+            </ul>
+
+        {% endif %}
+
+    </form>
+
+{% endblock %}
