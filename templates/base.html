@@ -17,6 +17,10 @@
                 color: red;
             }
 
+            .new_post_error  { 
+                color: red;
+            }
+
             span::before {
                     content: "\A";
             }
@@ -42,24 +46,34 @@
         </style>
     </head>
     <body>
-
-        <div>
-            <table>
-                <tr>
-                    <td>
-                        <a href="/blog"> Main Blog Page</a>                              
-                    </td>
-                    <td>
-                        <a class="new_blog_post" href="/newpost">Add a Bog Entry</a>                            
-                    </td>
-                </tr>
-            </table>
-        </div> 
+        <nav>
+            <ul>
+                <li>
+                    <a href="/"> Home</a>                                                      
+                </li>
+                <li>
+                    <a href="/blog"> All Posts</a>                                                      
+                </li>
+                <li>
+                    <a href="/newpost"> New Post</a>                                                      
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a href="/login"> Login </a>                                                      
+                </li>
+                <li>
+                    <a href="/logout"> Logout </a>                                                      
+                </li>
+            </ul>
+        </nav>
         <div>
                 {% with messages = get_flashed_messages(with_categories=True) %}
                     <ul>
                     {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
+                        {% if category != "new_post_error" %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endif %}
                     {% endfor %}
                     </ul>
                 {% endwith %}

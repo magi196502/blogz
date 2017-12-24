@@ -15,7 +15,7 @@
                     <input type="text" name="blog_title" value="{{ blog_title }}" />
                     {% with messages = get_flashed_messages(with_categories=True) %}
                         {% for category, message in messages %}
-                            {% if "title" in message %}
+                            {% if "title" in message and category == "new_post_error" %}
                                 <p class="{{ category }}">{{ message }} </p>
                             {% endif %}
                         {% endfor %}
