@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Blogz</h1>
+
+</form>
+
+    <form action="/blog">
+        {% if blog_post|length == 0 %}
+
+            {% if posts|length == 0 %}
+            
+                <p></p>
+
+                {% else %}
+                    {% for post in posts %}
+                    <div>
+                        <p> <a href="/blog?id={{ post.id}}"> {{ post.title }} </a>  </p>
+                        <p> {{ post.blog_body }} </p>
+                        <p> Date posted {{ post.post_date }}</p>
+                        <p> Written by {{ written_by }}</p>
+                    </div>
+                    <hr/>
+                {% endfor %}
+
+            {% endif %}   
+
+        {% endif %}    
+    </form>
+
+{% endblock %}

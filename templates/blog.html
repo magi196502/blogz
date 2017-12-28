@@ -17,6 +17,7 @@
                         <p> <a href="/blog?id={{ post.id}}"> {{ post.title }} </a>  </p>
                         <p> {{ post.blog_body }} </p>
                         <p> Date posted {{ post.post_date }}</p>
+                        <p> Written by {{ written_by }}</p>
                     </div>
                     <hr/>
                 {% endfor %}
@@ -32,6 +33,7 @@
                         <h1 class="single_blog" >{{ blog.title }}</h1>
                         <p class="single_blog_body">{{ blog.blog_body }}</p>
                         <p class="single_blog"> Date posted {{ blog.post_date }}</p>
+                        <p> Written by {{ written_by }}</p>
                     </div>
                 {% endfor %}
             {% endif %}

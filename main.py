@@ -48,13 +48,15 @@ def blog_home():
 #   allowed_routes = ['blog','newpost']
 #   allowed_routes = ['login','index','signup','blog','newpost','logout']  (Working)
     allowed_routes = ['/','index','login','signup','blog','newpost','logout']
+#   allowed_routes = ['/','index','login','signup','blog','newpost']
     # Check to see if the user is logged in. If not redirect to the login page
 
     current_user = session.get('username') 
     print("Entering the @app.before_request route")
     if request.endpoint not in allowed_routes:
 #       return redirect('/blog')
-        return redirect('/index')
+#       return render_template('index.html')
+        return redirect('/')
 
     """
     if request.endpoint == 'newpost':
@@ -140,20 +142,101 @@ def login():
 def blog():
     if request.method == 'GET':
         id = request.args.get("id")                         # Get the id parameter
-        blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-        #posts = Blog.query.all()                           # Query all posts when form is rendered
-#       posts = Blog.query.order_by(Blog.id.desc()).limit(3).all()    # Query all posts when form is rendered
-#       posts = Blog.query.order_by(Blog.id.desc()).all()    # Query all posts when form is rendered
-        posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
+        blog_user = request.args.get("user")
+        if id:
+#           blog_post = User.blogs.filter_by()
+            posts = []
+            blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
+#           print("The blog is: ", blog_post.title, blog_post.blog_body, blog_post.owner_id)
 
-        # Render the template and pass the parameters
-        return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+            print("Blog post[0] is", blog_post, blog_post[0])
+#            blog_user_id = blog_post.owner
+#            print("Blog user id", blog_user_id)
+#            blog_post_user = User.query.filter_by(id=blog_user_id).first()
+#            print("Blog user name", blog_post_user)
+#            blog_user = blog_post_user.username
+#            print("Blog usr id", blog_user)
+#           blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
+#            written_by = blog_post
+#            print("Blog post was written by", written_by)
+#            blog_post_user = User.query.filter_by(id=written_by).first()
+#            print("Blog post was written by", blog_post_user.username)
+
+#            user_id = blog_post_temp.owner_id
+#            user_id = User.query.filter_by(owner_id=user_id, id=id).first()
+            return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=blog_user)
+        elif blog_user:
+            blog_post = []
+            user_id = User.query.filter_by(username=blog_user).first()
+
+            post_blogger = User.query.filter_by(id=user_id.id).first()
+            print("The post blogger is:", post_blogger.username)
+            posts = post_blogger.blogs
+            print("The posts are:", post_blogger.blogs)            
+            print("The post username is :", post_blogger.username)            
+            print("The posts are:", posts)
+        
+            for post in posts:
+                print("The individual post is ", post)
+#               for element in post:
+#                   print("The post element is ", element)
+                    
+#           print("The posts are user is:", posts.owner)
+
+
+#       return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+
+#           return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+            return render_template('singleUser.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=post_blogger.username)
+        else:    
+            blog_post=[]
+#           blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
+            """
+            user_id = User.query.filter_by(username=blog_user).first()
+            post_blogger = User.query.filter_by(id=user_id.id).first()
+            print("The post blogger is:", post_blogger.username)
+            posts = post_blogger.blogs
+            print("The posts are:", posts)
+            return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+            """
+            
+            blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
+            posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
+            return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+#       id = 1
+#       print("The blog id is:", id)
+        
+#        blog_user = request.args.get("user")
+#        user_id = User.query.filter_by(username=blog_user).first()
+
+#       user_id = request.args.get("user")
+#        print("The user_id is:", user_id.id)
+
+ #      written_by = request.args.get("blog_user")
+#       print("The blogger is:", written_by)
+#        print("The blogger is:", blog_user)
+
+#        blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
+#        print("The blog_post is:", blog_post)
+#        #userList = users.query.join(friendships, users.id==friendships.user_id).add_columns(users.userId, users.name, users.email, friends.userId, friendId).filter(users.id == friendships.friend_id).filter(friendships.user_id == userID).paginate(page, 1, False)
+
+#       posts = Blog.query.join(User, Blog.owner_id==User.id).add_columns(User.id, User.username, Blog.id, Blog.title, Blog.blog_body, Blog.owner_id, Blog.post_date)
+#       posts = Blog.query.join(User, Blog.owner_id==User.id).add_columns(User.id, User.username, Blog.id, Blog.title, Blog.blog_body, Blog.owner_id, Blog.post_date).filter(User.id == Blog.owner_id)
+#       posts = Blog.query.join(User, Blog.owner_id=User.id).add_columns(User.id, User.username, Blog.id, Blog.title, Blog.blog_body, Blog.owner_id, Blog.post_date)
+#        post_blogger = User.query.filter_by(id=user_id.id).first()
+#        print("The post blogger is:", post_blogger)
+#        posts = post_blogger.blogs
+#        print("The posts are:", posts)
+
+
+#       return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
     else:
-        id = request.args.get('id')
         blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
         posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
-#   return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
-        return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+        
+    return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+
+
 
 # Set the new post route
 #@app.route('/newpost', methods=['POST','GET'])
@@ -321,13 +404,15 @@ def logout():
     logged_in_user = session.get('username')
     if logged_in_user:
         del session['username']
-    return redirect('/blog')
+#   return redirect('/blog')
+    return redirect('/index')
 
 # Set the home page route. In this application it's the blog page
-@app.route('/index',methods=['GET','POST'])
+@app.route('/',methods=['GET','POST'])
 def index():
     bloggers = User.query.all()    # Query all bloggers
     return render_template('index.html',title="Blogz",bloggers=bloggers)
+
     """
     # pocess the post method
     if request.method == 'POST':
