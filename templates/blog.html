@@ -1,44 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Blogz</h1>
-
+<h1>Blogz</h1>
 </form>
 
     <form action="/blog">
-        {% if blog_post|length == 0 %}
+        {% if posts|length != 0 %}
+            <p>Multiple blog section</p>
 
-            {% if posts|length == 0 %}
-            
-                <p></p>
+            {% for post_blogger in posts %}
+                    {% for post in post_blogger.blogs %}
+                <div>
+                    <p> <a href="/blog?id={{ post.id}}"> {{ post.title }} </a>  </p>
+                    <p> {{ post.blog_body }} </p>
+                    <p> Date posted {{ post.post_date }}</p>
+                    <p> Written by <a href="/blog?user={{ post_blogger.username }}">  {{ post_blogger.username }} </a>  </p>
+                </div>
+                    {% endfor %}
+                <hr/>
+            {% endfor %}
 
-                {% else %}
-                    {% for post_blogger in posts %}
-                        {% for post in post_blogger.blogs %}
-                    <div>
-                        <p> <a href="/blog?id={{ post.id}}"> {{ post.title }} </a>  </p>
-                        <p> {{ post.blog_body }} </p>
-                        <p> Date posted {{ post.post_date }}</p>
-                        <p> Written by  {{ post_blogger.username }}</p>
-                    </div>
-                        {% endfor %}
-                    <hr/>
-                {% endfor %}
-
-            {% endif %}   
-
+        
         {% else %}
-            {% if blog_post|length == 0 %}
-                    <p></p>
-            {% else %}
-                {% for blog in blog_post %}
-                    <div>
-                        <h1 class="single_blog" >{{ blog.title }}</h1>
-                        <p class="single_blog_body">{{ blog.blog_body }}</p>
-                        <p class="single_blog"> Date posted {{ blog.post_date }}</p>
-                        <p> Written by {{ written_by }}</p>
-                    </div>
-                {% endfor %}
-            {% endif %}
+            <div>
+                <h1 class="single_blog" >{{ blog_post.title }}</h1>
+                <p class="single_blog_body">{{ blog_post.blog_body }}</p>
+                <p class="single_blog"> Date posted {{ blog_post.post_date }}</p>
+                <p> Written by <a href="/blog?user={{ written_by }}"> {{ written_by }} </a>  </p>
+            </div>
+
         {% endif %}    
     </form>
 

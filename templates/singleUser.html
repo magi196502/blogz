@@ -17,7 +17,7 @@
                         <p> <a href="/blog?id={{ post.id}}"> {{ post.title }} </a>  </p>
                         <p> {{ post.blog_body }} </p>
                         <p> Date posted {{ post.post_date }}</p>
-                        <p> Written by {{ written_by }}</p>
+                        <p> Written by  <a href="/blog?user={{ written_by }}"> {{ written_by }} </a>  </p>
                     </div>
                     <hr/>
                 {% endfor %}

@@ -141,43 +141,34 @@ def login():
 @app.route('/blog', methods=['POST','GET'])
 def blog():
     if request.method == 'GET':
-        id = request.args.get("id")                         # Get the id parameter
-        blog_user = request.args.get("user")
+        id = request.args.get("id")                                             # Get the id parameter
+        blog_user = request.args.get("user")                                    # Get the blogger username
+
+        # Process if there is a blog id returned
         if id:
-#           blog_post = User.blogs.filter_by()
-            posts = []
-            blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-#           print("The blog is: ", blog_post.title, blog_post.blog_body, blog_post.owner_id)
-
-            print("Blog post[0] is", blog_post, blog_post[0])
-#            blog_user_id = blog_post.owner
-#            print("Blog user id", blog_user_id)
-#            blog_post_user = User.query.filter_by(id=blog_user_id).first()
-#            print("Blog user name", blog_post_user)
-#            blog_user = blog_post_user.username
-#            print("Blog usr id", blog_user)
-#           blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-#            written_by = blog_post
-#            print("Blog post was written by", written_by)
-#            blog_post_user = User.query.filter_by(id=written_by).first()
-#            print("Blog post was written by", blog_post_user.username)
-
-#            user_id = blog_post_temp.owner_id
-#            user_id = User.query.filter_by(owner_id=user_id, id=id).first()
+            posts = []                                                          # If there is an id, there should not be multiple posts
+            blog_post = Blog.query.filter_by(id=id).first()                     # Query by single post 
+#           print("The post is:", blog_post)
+            blog_user_id = blog_post.owner_id
+#           print("The post blogger user id is:", blog_user_id)
+            blogger = User.query.filter_by(id=blog_user_id).first()
+            blog_user = blogger.username
+            print("The post is:", blog_post)
+            print("The post blogger username is:", blog_user)
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=blog_user)
         elif blog_user:
             blog_post = []
             user_id = User.query.filter_by(username=blog_user).first()
 
             post_blogger = User.query.filter_by(id=user_id.id).first()
-            print("The post blogger is:", post_blogger.username)
+#           print("The post blogger is:", post_blogger.username)
             posts = post_blogger.blogs
-            print("The posts are:", post_blogger.blogs)            
-            print("The post username is :", post_blogger.username)            
-            print("The posts are:", posts)
+#           print("The posts are:", post_blogger.blogs)            
+#           print("The post username is :", post_blogger.username)            
+#           print("The posts are:", posts)
         
-            for post in posts:
-                print("The individual post is ", post)
+#           for post in posts:
+#               print("The individual post is ", post)
 #               for element in post:
 #                   print("The post element is ", element)
                     
@@ -204,10 +195,10 @@ def blog():
 #           posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
 #           post_blogger = User.query.filter_by(id=user_id.id).first()
             posts = User.query.all()
-            for post in posts:
-                print("The post is ", post.username)
-                for blog in post.blogs:
-                    print("The blog post is ", post.blogs)
+ #          for post in posts:
+ #              print("The post is ", post.username)
+ #              for blog in post.blogs:
+ #                  print("The blog post is ", post.blogs)
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
 #       id = 1
 #       print("The blog id is:", id)
