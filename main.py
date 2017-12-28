@@ -199,9 +199,15 @@ def blog():
             print("The posts are:", posts)
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
             """
-            
+
             blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-            posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
+#           posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
+#           post_blogger = User.query.filter_by(id=user_id.id).first()
+            posts = User.query.all()
+            for post in posts:
+                print("The post is ", post.username)
+                for blog in post.blogs:
+                    print("The blog post is ", post.blogs)
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
 #       id = 1
 #       print("The blog id is:", id)

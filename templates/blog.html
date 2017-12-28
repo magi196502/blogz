@@ -12,13 +12,15 @@
                 <p></p>
 
                 {% else %}
-                    {% for post in posts %}
+                    {% for post_blogger in posts %}
+                        {% for post in post_blogger.blogs %}
                     <div>
                         <p> <a href="/blog?id={{ post.id}}"> {{ post.title }} </a>  </p>
                         <p> {{ post.blog_body }} </p>
                         <p> Date posted {{ post.post_date }}</p>
-                        <p> Written by {{ written_by }}</p>
+                        <p> Written by  {{ post_blogger.username }}</p>
                     </div>
+                        {% endfor %}
                     <hr/>
                 {% endfor %}
 
