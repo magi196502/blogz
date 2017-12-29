@@ -4,8 +4,10 @@
 </form>
 
     <form action="/blog">
+        <!--
+            Process multiple posts
+        -->
         {% if posts|length != 0 %}
-            <p>Multiple blog section</p>
 
             {% for post_blogger in posts %}
                     {% for post in post_blogger.blogs %}
@@ -21,7 +23,10 @@
 
         
         {% else %}
-            <div>
+        <!--
+            Process a single post
+        -->
+        <div>
                 <h1 class="single_blog" >{{ blog_post.title }}</h1>
                 <p class="single_blog_body">{{ blog_post.blog_body }}</p>
                 <p class="single_blog"> Date posted {{ blog_post.post_date }}</p>

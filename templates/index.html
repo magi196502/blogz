@@ -11,8 +11,7 @@
         {% else  %}
             <ul>
                 {% for blogger in bloggers %}
-                    <li><a href="/blog?user={{blogger.username}}"> {{ blogger.username }} </a>  </li>
-                    <input type="hidden" name="blog_user" value="{{ blogger.username }}">
+                    <li><a class="home_nav_links" href="/blog?user={{blogger.username}}"> {{ blogger.username }} </a>  </li>
                 {% endfor %}
             </ul>
 

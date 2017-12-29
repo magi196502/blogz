@@ -1,7 +1,8 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
+from hashing import hash_pwd, check_hash_pwd 
+#import hashlib
 #from sqlalchemy import Column, Integer, String, Boolean
 #from sqlalchemy.ext.declarative import declarative_base
 
@@ -12,14 +13,13 @@ app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'yfd9uhlskdjkfymcjz&vzAIP'
 
-# Define the Blog calss - (The Model portion of the app)
+# Define the Blog class - (The Model portion of the app)
 class Blog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120))
-    blog_body = db.Column(db.String(2500))
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    post_date = db.Column(db.DateTime)
-#   blogs = db.relationship('Blog', backref='owner_id')
+    id = db.Column(db.Integer, primary_key=True)                                # The blog id
+    title = db.Column(db.String(120))                                           # The blog title
+    blog_body = db.Column(db.String(2500))                                      # The blog body
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))                  # Create the relationship with the blogger
+    post_date = db.Column(db.DateTime)                                          # The date the blogger creates a post
 
     # The Blog class constructor, perform the following upon initialization
     def __init__(self, title, blog_body, owner, post_date=None):
@@ -32,70 +32,36 @@ class Blog(db.Model):
 
 # Define the User class. - (Also the Model portion of the app)
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120))
-    blogs = db.relationship('Blog', backref='owner')
+    id = db.Column(db.Integer, primary_key=True)                                # The blogger id
+    username = db.Column(db.String(120), unique=True)                           # The blogger username
+#   password = db.Column(db.String(120))                                        # The blogger password
+    hashed_password = db.Column(db.String(120))                                 # The blogger password
+    blogs = db.relationship('Blog', backref='owner')                            # The blog posts related to the blogger
 
     # The User constructor, perform upon initialization
     def __init__(self, username, password):
         self.username = username
-        self.password = password
+        self.hashed_password = hash_pwd(password)                                      # Hash the password to store in the database
 
+# The following would be the controller portion of the application
 # Before request, set the allowed routes
 @app.before_request
 def blog_home():
-#   allowed_routes = ['blog','newpost']
-#   allowed_routes = ['login','index','signup','blog','newpost','logout']  (Working)
     allowed_routes = ['/','index','login','signup','blog','newpost','logout']
-#   allowed_routes = ['/','index','login','signup','blog','newpost']
     # Check to see if the user is logged in. If not redirect to the login page
-
-    current_user = session.get('username') 
-    print("Entering the @app.before_request route")
-    if request.endpoint not in allowed_routes:
-#       return redirect('/blog')
-#       return render_template('index.html')
-        return redirect('/')
-
-    """
-    if request.endpoint == 'newpost':
-        if not current_user:
-            return redirect('/login')
-        else:
-            return render_template("newpost.html")
-    else:        
-        if request.endpoint not in allowed_routes:
-            return redirect('/blog')
-    """
-
-#            if current_user:
-#                render_template("newpost.html")
-#            else:
-#                return redirect('/blog')
-#        return redirect('/login')
-
-"""
-    if request.endpoint not in allowed_routes:
-        c_user = current_user 
-
-         # Check to see if the user is logged in. If not redirect to the login page
-        if current_user == "" or current_user == None:
-            return redirect('/login')
-        else:
-        #        return redirect('/blog')
-            return redirect('/blog')
-"""
-
-#   allowed_routes = ['login','index','signup','blog','newpost']
+    current_user = session.get('username')                                      # Get the username from the session 
+    if request.endpoint not in allowed_routes:                                 # Handle whenever a route isn't in the
+                                                                               # allowed routes     
+        return redirect('/')                                                   # Redirect to the home page
 
 # Set the login route
 @app.route('/login', methods=['POST','GET'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        print('The username from the form is:', username)
+        username = request.form['username']                                     # Get the username and password from
+        password = request.form['password']                                     # the login form
+
+        # Handle if the username or password is blank
         if username == "" or password == "":
             if password == "" and username == "":
                 flash('Username or password cannot be empty','error')
@@ -106,25 +72,22 @@ def login():
             else:
                 flash('User password cannot be empty.','error')
             return redirect('/login')
-#           return render_template('login.html')
         else:
-            user = User.query.filter_by(username=username).first()
-            if user and user.password == password:
-                # Todo - 'remember' that the user has logged in
-                session['username'] = username
+            # Once the username and password are filled out validate the user
+            # in the database.
+            user = User.query.filter_by(username=username).first()              # Get the username from the database
+            # If the username is valied and the password match what's in the database
+            if user and check_hash_pwd(password,user.hashed_password):
+                session['username'] = username                                  # Add the user to the session
                 u_session = session['username']
                 flash('Logged in')
                 
-                print("Should be redirected to /newpost at this point")
-                #return redirect('/newpost')
-                #return render_template("newpost.html")
-                return redirect('/newpost')
+                return redirect('/newpost')                                     # Redirect to the new post page upon login
             else:
-#               print("User should be empty at this point", user.id)
                 # If the user isn't found in the database
                 if user == "" or user == None:
                     flash('Username does not exist','error')
-                elif user and user.password != password:
+                elif user and not check_hash_pwd(password,user.hashed_password):
                     flash('Password is incorrect.','error')
                 else:
                     flash('User password incorrect, or user does not exist','error')
@@ -132,11 +95,10 @@ def login():
 
         # Redirect if login is successful
         return redirect('/newpost')
-#       return render_template('newpost.html')
     else:
+        # If anything else goes wrong redirect to the login page
         return render_template('login.html')
 
-#       return redirect('/login')    
 # Set the blog route
 @app.route('/blog', methods=['POST','GET'])
 def blog():
@@ -148,99 +110,41 @@ def blog():
         if id:
             posts = []                                                          # If there is an id, there should not be multiple posts
             blog_post = Blog.query.filter_by(id=id).first()                     # Query by single post 
-#           print("The post is:", blog_post)
             blog_user_id = blog_post.owner_id
-#           print("The post blogger user id is:", blog_user_id)
-            blogger = User.query.filter_by(id=blog_user_id).first()
-            blog_user = blogger.username
-            print("The post is:", blog_post)
-            print("The post blogger username is:", blog_user)
+            blogger = User.query.filter_by(id=blog_user_id).first()             # Get the blogger info
+            blog_user = blogger.username                                        # and render the single blog entry
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=blog_user)
         elif blog_user:
+            # Handle whenever the username is entered
             blog_post = []
-            user_id = User.query.filter_by(username=blog_user).first()
-
-            post_blogger = User.query.filter_by(id=user_id.id).first()
-#           print("The post blogger is:", post_blogger.username)
-            posts = post_blogger.blogs
-#           print("The posts are:", post_blogger.blogs)            
-#           print("The post username is :", post_blogger.username)            
-#           print("The posts are:", posts)
-        
-#           for post in posts:
-#               print("The individual post is ", post)
-#               for element in post:
-#                   print("The post element is ", element)
-                    
-#           print("The posts are user is:", posts.owner)
-
-
-#       return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
-
-#           return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
+            user_id = User.query.filter_by(username=blog_user).first()          # Get the blogger id          
+            post_blogger = User.query.filter_by(id=user_id.id).first()          # Get the info by blogger id
+            posts = post_blogger.blogs                                          # Get all of the blogger's posts
+            # Display all of the posts for the individual blogger
             return render_template('singleUser.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=post_blogger.username)
-        else:    
+        else:
+            # Display all blogs    
             blog_post=[]
-#           blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-            """
-            user_id = User.query.filter_by(username=blog_user).first()
-            post_blogger = User.query.filter_by(id=user_id.id).first()
-            print("The post blogger is:", post_blogger.username)
-            posts = post_blogger.blogs
-            print("The posts are:", posts)
+            blog_post = Blog.query.filter_by(id=id).all()                       # Query by single post, this will be empty 
+            posts = User.query.all()                                            # Get all blogger info. This also includes
+                                                                                # all posts
+            # Display all posts. By querying by bloggers, the blogger info is also included
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
-            """
-
-            blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-#           posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
-#           post_blogger = User.query.filter_by(id=user_id.id).first()
-            posts = User.query.all()
- #          for post in posts:
- #              print("The post is ", post.username)
- #              for blog in post.blogs:
- #                  print("The blog post is ", post.blogs)
-            return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
-#       id = 1
-#       print("The blog id is:", id)
-        
-#        blog_user = request.args.get("user")
-#        user_id = User.query.filter_by(username=blog_user).first()
-
-#       user_id = request.args.get("user")
-#        print("The user_id is:", user_id.id)
-
- #      written_by = request.args.get("blog_user")
-#       print("The blogger is:", written_by)
-#        print("The blogger is:", blog_user)
-
-#        blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-#        print("The blog_post is:", blog_post)
-#        #userList = users.query.join(friendships, users.id==friendships.user_id).add_columns(users.userId, users.name, users.email, friends.userId, friendId).filter(users.id == friendships.friend_id).filter(friendships.user_id == userID).paginate(page, 1, False)
-
-#       posts = Blog.query.join(User, Blog.owner_id==User.id).add_columns(User.id, User.username, Blog.id, Blog.title, Blog.blog_body, Blog.owner_id, Blog.post_date)
-#       posts = Blog.query.join(User, Blog.owner_id==User.id).add_columns(User.id, User.username, Blog.id, Blog.title, Blog.blog_body, Blog.owner_id, Blog.post_date).filter(User.id == Blog.owner_id)
-#       posts = Blog.query.join(User, Blog.owner_id=User.id).add_columns(User.id, User.username, Blog.id, Blog.title, Blog.blog_body, Blog.owner_id, Blog.post_date)
-#        post_blogger = User.query.filter_by(id=user_id.id).first()
-#        print("The post blogger is:", post_blogger)
-#        posts = post_blogger.blogs
-#        print("The posts are:", posts)
-
-
-#       return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
     else:
-        blog_post = Blog.query.filter_by(id=id).all()       # Query by single post 
-        posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
+
+        # This will display all posts as a default
+        blog_post = Blog.query.filter_by(id=id).all()                           # Query by single post, this will be empty 
+        posts = User.query.all()                                                # Get all blogger info. This also includes
         
     return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
 
-
-
 # Set the new post route
-#@app.route('/newpost', methods=['POST','GET'])
 @app.route('/newpost', methods=['GET','POST'])
 def newpost():
-    current_user = session.get('username') 
-    #current_user = current_user.strip()
+
+    current_user = session.get('username')                                      # Get the username from the session 
+
+    # If the user isn't logged in redirect to the login page else render the new post page
     if request.method == 'GET':
         if not current_user:
             return redirect('/login')
@@ -248,10 +152,9 @@ def newpost():
             return render_template('newpost.html')
     else:
 
-        # Check to see if the user is logged in. If not redirect to the login page
-    #    print("Outside get/post. If the user has logged out, the user is empty", current_user)
+        # Handle a new blog post entry
         if request.method == 'POST':
-            user = session.get('username')
+            user = session.get('username')                                      # Get the post info from the form
             title = request.form['blog_title']
             title = title.strip()
             blog_body = request.form['blog_body']
@@ -271,36 +174,29 @@ def newpost():
                 flash('The blog message is empty, please enter a message.','new_post_error')
                 return render_template('newpost.html',blog_title=title,blog_body=blog_body)
             else:
-                # Submit users entry into the database
+                # Submit users entry into the database and display the new blog entry
                 blog_owner = User.query.filter_by(username=user).first()       # Query to get the user id 
                 
                 owner_id = blog_owner.id
 
-    #           p_date = str(post_date)
                 new_blog_entry = Blog(title, blog_body, owner_id, post_date)
-    #           new_blog_entry = Blog(title, blog_body, ownerID, post_date)
                 db.session.add(new_blog_entry)
                 db.session.commit()
                 blog_id = str(new_blog_entry.id)
 
             return redirect("/blog?id=" + blog_id)
 
-    #    if current_user == "" or current_user == None:
-    ##       return redirect('/login')
-    #        return render_template('login.html')
         else:
-    #       return render_template('newpost.html')
+            # If anything else goes wrong go to the new post page
             return redirect('/newpost')
-
 
 # User signup path will validate the fields in the form and
 # direct the user to the welcome confirmation message if
 # all fields submitted are valid
-#@app.route('/signup', methods=['GET','POST'])
 @app.route("/signup", methods=['GET','POST'] )
 def signup():
     if request.method == 'POST':
-        user_name = request.form['username']
+        user_name = request.form['username']                                    # Get the info from the form
         password = request.form['password']
         verify_password = request.form['verify_password']
 
@@ -375,7 +271,7 @@ def signup():
         user = User.query.filter_by(username=user_name).first()
 
         # Create new user once the username and password are validated and the 
-        # user doesn't exist in the database
+        # user doesn't exist in the  and display the new post form
         if User == "" or user == None:
             session['username'] = user_name
             new_user = User(user_name, password)
@@ -383,16 +279,15 @@ def signup():
             db.session.commit()
 
             return redirect('/newpost')
-#           return render_template('newpost.html')
         else:
+            # Handle the case if the user already exists in the database
             password = ""
             verify_password = ""
             flash('The user already exists in the database. Please select a different name.','error')            
             return render_template("signup.html",title="Signup", username=user_name,password=password,verify_password=verify_password)
             
-
-#       return render_template('newpost.html')
     else:
+        # Default return to the signup page
         return render_template('signup.html')
 
 # Set the logout path

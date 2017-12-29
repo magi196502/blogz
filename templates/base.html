@@ -66,17 +66,21 @@
             .active {
                 background-color: #4CAF50;
             }       
-            a {
-                display: block;
-                padding: 5px;
-            }                
 
             .nav_links {
                 display: block;
                 padding: 8px;
             }
+
+            .home_nav_links {
+                display: block;
+                padding: 5px;
+            }
         </style>
     </head>
+    <!--
+        The view portion of the application
+    -->
     <body>
         <nav>
             <ul class="nav_bar">
@@ -113,9 +117,6 @@
 
     {% block content  %}
 
-        <!--
-        <h1> Successfully running</h1>
-        -->
 
     {% endblock %}
 
