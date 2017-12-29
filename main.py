@@ -2,9 +2,6 @@ from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from hashing import hash_pwd, check_hash_pwd 
-#import hashlib
-#from sqlalchemy import Column, Integer, String, Boolean
-#from sqlalchemy.ext.declarative import declarative_base
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -34,7 +31,6 @@ class Blog(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)                                # The blogger id
     username = db.Column(db.String(120), unique=True)                           # The blogger username
-#   password = db.Column(db.String(120))                                        # The blogger password
     hashed_password = db.Column(db.String(120))                                 # The blogger password
     blogs = db.relationship('Blog', backref='owner')                            # The blog posts related to the blogger
 
@@ -296,39 +292,14 @@ def logout():
     logged_in_user = session.get('username')
     if logged_in_user:
         del session['username']
-#   return redirect('/blog')
     return redirect('/index')
 
 # Set the home page route. In this application it's the blog page
 @app.route('/',methods=['GET','POST'])
 def index():
-    bloggers = User.query.all()    # Query all bloggers
+    bloggers = User.query.all()                                                 # Query all bloggers
     return render_template('index.html',title="Blogz",bloggers=bloggers)
 
-    """
-    # pocess the post method
-    if request.method == 'POST':
-        return render_template('index.html',title="Blogz",bloggers=bloggers)
-
-#       return render_template('login.html',title="Blogz")
-#       return redirect('/blog')
-#       return redirect('/index')
-    else:
-        # Process get requests
- #      bloggers = User.query.all()    # Query all bloggers
-        return render_template('index.html',title="Blogz",bloggers=bloggers)
-#       return redirect('/index')
-#       posts = Blog.query.all()                        # Query all blogs
-#       posts = Blog.query.order_by(Blog.id.desc()).limit(3).all()    # Query all posts when form is rendered
-#       posts = Blog.query.order_by(Blog.id.desc()).all()    # Query all posts when form is rendered
-#        posts = Blog.query.order_by(Blog.post_date.desc()).all()    # Query all posts when form is rendered
-#        id = request.args.get("id")                     # Get the blog id
- #       blog_post = Blog.query.filter_by(id=id).all()   # Get an individual blog
-#        return render_template('index.html')
-#        return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
-#        return render_template('Blog.html',title="Blogz")
-#        return redirect('/blog')
-    """
 
 # If app is called from main run
 if __name__ == '__main__':
