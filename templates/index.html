@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Blog Users!</h1>
-
+<!--
+    Process the home page
+-->
     <form action="/index">
 
         {% if bloggers|length == 0 %}

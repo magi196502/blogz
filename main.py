@@ -43,12 +43,21 @@ class User(db.Model):
 # Before request, set the allowed routes
 @app.before_request
 def blog_home():
+#   allowed_routes = ['/','index','login','signup','blog','logout']
     allowed_routes = ['/','index','login','signup','blog','newpost','logout']
     # Check to see if the user is logged in. If not redirect to the login page
-    current_user = session.get('username')                                      # Get the username from the session 
+    current_user = session.get('username')                                     # Get the username from the session 
     if request.endpoint not in allowed_routes:                                 # Handle whenever a route isn't in the
                                                                                # allowed routes     
+        """
+        if request.endpoint == 'newpost' and not current_user:
+            return redirect('/login')
+        else:
+            return render_template('newpost.html')
         return redirect('/')                                                   # Redirect to the home page
+        """
+        return redirect('/')                                                   # Redirect to the home page
+
 
 # Set the login route
 @app.route('/login', methods=['POST','GET'])
@@ -75,8 +84,8 @@ def login():
             # If the username is valied and the password match what's in the database
             if user and check_hash_pwd(password,user.hashed_password):
                 session['username'] = username                                  # Add the user to the session
-                u_session = session['username']
-                flash('Logged in')
+                # Optional flash message welcoming user
+                #flash('Welcome ' +  username)
                 
                 return redirect('/newpost')                                     # Redirect to the new post page upon login
             else:
@@ -98,11 +107,13 @@ def login():
 # Set the blog route
 @app.route('/blog', methods=['POST','GET'])
 def blog():
+    page=1
+    per_page=5
     if request.method == 'GET':
         id = request.args.get("id")                                             # Get the id parameter
         blog_user = request.args.get("user")                                    # Get the blogger username
 
-        # Process if there is a blog id returned
+        # Process if there is a blog id returned (view a single post)
         if id:
             posts = []                                                          # If there is an id, there should not be multiple posts
             blog_post = Blog.query.filter_by(id=id).first()                     # Query by single post 
@@ -111,10 +122,11 @@ def blog():
             blog_user = blogger.username                                        # and render the single blog entry
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=blog_user)
         elif blog_user:
-            # Handle whenever the username is entered
+            # Handle whenever the username is entered (view all posts by a single blogger)
             blog_post = []
             user_id = User.query.filter_by(username=blog_user).first()          # Get the blogger id          
             post_blogger = User.query.filter_by(id=user_id.id).first()          # Get the info by blogger id
+#           posts = post_blogger.blogs                                          # Get all of the blogger's posts
             posts = post_blogger.blogs                                          # Get all of the blogger's posts
             # Display all of the posts for the individual blogger
             return render_template('singleUser.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=post_blogger.username)
@@ -123,6 +135,7 @@ def blog():
             blog_post=[]
             blog_post = Blog.query.filter_by(id=id).all()                       # Query by single post, this will be empty 
             posts = User.query.all()                                            # Get all blogger info. This also includes
+#           posts = User.query.paginate(page=page, per_page=per_page, error_out=False)                  # Get all blogger info. This also includes
                                                                                 # all posts
             # Display all posts. By querying by bloggers, the blogger info is also included
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
@@ -191,6 +204,7 @@ def newpost():
 # all fields submitted are valid
 @app.route("/signup", methods=['GET','POST'] )
 def signup():
+
     if request.method == 'POST':
         user_name = request.form['username']                                    # Get the info from the form
         password = request.form['password']
@@ -267,7 +281,7 @@ def signup():
         user = User.query.filter_by(username=user_name).first()
 
         # Create new user once the username and password are validated and the 
-        # user doesn't exist in the  and display the new post form
+        # user doesn't exist in the database and display the new post form
         if User == "" or user == None:
             session['username'] = user_name
             new_user = User(user_name, password)
@@ -292,6 +306,7 @@ def logout():
     logged_in_user = session.get('username')
     if logged_in_user:
         del session['username']
+#   return redirect('/index')
     return redirect('/index')
 
 # Set the home page route. In this application it's the blog page

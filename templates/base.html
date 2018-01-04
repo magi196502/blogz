@@ -101,7 +101,10 @@
                 <li class="nav_bar_right">
                     <a href="/login"  class="nav_links"> Login </a>                                                      
                 </li>
-            </ul>
+                <li class="nav_bar_right">
+                        <a href="/blog?user={{session['username']}}"  class="nav_links"> {{session['username']}} </a>                                                      
+                    </li>
+                </ul>
         </nav>
         <div>
                 {% with messages = get_flashed_messages(with_categories=True) %}
