@@ -43,22 +43,13 @@ class User(db.Model):
 # Before request, set the allowed routes
 @app.before_request
 def blog_home():
-#   allowed_routes = ['/','index','login','signup','blog','logout']
-    allowed_routes = ['/','index','login','signup','blog','newpost','logout']
+    allowed_routes = ['/','index','login','signup','blog','logout']
     # Check to see if the user is logged in. If not redirect to the login page
     current_user = session.get('username')                                     # Get the username from the session 
-    if request.endpoint not in allowed_routes:                                 # Handle whenever a route isn't in the
-                                                                               # allowed routes     
-        """
-        if request.endpoint == 'newpost' and not current_user:
-            return redirect('/login')
-        else:
-            return render_template('newpost.html')
+    # Handle whenever a route isn't in the allowed routes
+    if request.endpoint not in allowed_routes and request.endpoint != 'newpost':   
         return redirect('/')                                                   # Redirect to the home page
-        """
-        return redirect('/')                                                   # Redirect to the home page
-
-
+                                                                                    
 # Set the login route
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -126,7 +117,6 @@ def blog():
             blog_post = []
             user_id = User.query.filter_by(username=blog_user).first()          # Get the blogger id          
             post_blogger = User.query.filter_by(id=user_id.id).first()          # Get the info by blogger id
-#           posts = post_blogger.blogs                                          # Get all of the blogger's posts
             posts = post_blogger.blogs                                          # Get all of the blogger's posts
             # Display all of the posts for the individual blogger
             return render_template('singleUser.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=post_blogger.username)
@@ -135,7 +125,6 @@ def blog():
             blog_post=[]
             blog_post = Blog.query.filter_by(id=id).all()                       # Query by single post, this will be empty 
             posts = User.query.all()                                            # Get all blogger info. This also includes
-#           posts = User.query.paginate(page=page, per_page=per_page, error_out=False)                  # Get all blogger info. This also includes
                                                                                 # all posts
             # Display all posts. By querying by bloggers, the blogger info is also included
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
