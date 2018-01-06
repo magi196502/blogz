@@ -295,7 +295,6 @@ def logout():
     logged_in_user = session.get('username')
     if logged_in_user:
         del session['username']
-#   return redirect('/index')
     return redirect('/index')
 
 # Set the home page route. In this application it's the blog page
