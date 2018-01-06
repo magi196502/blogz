@@ -117,7 +117,8 @@ def blog():
             blog_post = []
             user_id = User.query.filter_by(username=blog_user).first()          # Get the blogger id          
             post_blogger = User.query.filter_by(id=user_id.id).first()          # Get the info by blogger id
-            posts = post_blogger.blogs                                          # Get all of the blogger's posts
+            posts_unsorted = post_blogger.blogs                                 # Get all of the blogger's posts
+            posts = posts_unsorted[::-1]                                        # Sort the list in descending order
             # Display all of the posts for the individual blogger
             return render_template('singleUser.html',title="Blogz", blog_post=blog_post, posts=posts,written_by=post_blogger.username)
         else:
@@ -125,7 +126,7 @@ def blog():
             blog_post=[]
             blog_post = Blog.query.filter_by(id=id).all()                       # Query by single post, this will be empty 
             posts = User.query.all()                                            # Get all blogger info. This also includes
-                                                                                # all posts
+
             # Display all posts. By querying by bloggers, the blogger info is also included
             return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
     else:
@@ -133,7 +134,6 @@ def blog():
         # This will display all posts as a default
         blog_post = Blog.query.filter_by(id=id).all()                           # Query by single post, this will be empty 
         posts = User.query.all()                                                # Get all blogger info. This also includes
-        
     return render_template('blog.html',title="Blogz", blog_post=blog_post, posts=posts)
 
 # Set the new post route
